@@ -30,3 +30,76 @@ ruff-lsp = "^0.0.39"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.isort]
+# compatibility with Black formatter
+profile = "black"
+
+
+[tool.pylint]
+disable = [
+        # "C0303",  # trailing-whitespace -- interferes with docstring markdown
+        "R0903", # too-few-public-methods -- interferes with type capture of program logic
+]
+
+[tool.pylint.format]
+# line length to match Black formatter
+max-line-length = "88"
+
+
+[tool.pyright]
+include = ["src"]
+exclude = [".venv", "src/experimental", "src/typestubs", "**/__pycache__"]
+# utilizing the fact that we've set Poetry `virtualenv.in-project` to true
+venvPath = "."
+venv = ".venv"
+
+typeCheckingMode = "basic"    # "off", "basic", "strict"
+reportMissingImports = true
+reportMissingTypeStubs = true
+
+executionEnvironments = [{ root = "src" }]
+
+
+[tool.pytest.ini_options]
+# adds the following paths to pythonpath, specified relative to root dir
+addopts = "--doctest-modules" # run doctests
+pythonpath = ["src"]
+
+
+[tool.ruff]
+# Allow imports relative to the "src" and "test" directories.
+src = ["src", "tests"]
+
+# warn, but recommend restructuring for unused `__init__.py` module imports
+ignore-init-module-imports = true
+
+select = ["ALL"]
+ignore = [
+        "D203", # One blank line before class -- conflicts with "D211"
+        "D213", # Multiline docstrings start on second line -- conflicts with "D212"
+]
+
+[tool.ruff.extend-per-file-ignores]
+# ignore these lints in a file that will be specifying CLI args (via Typer decorators)
+"commands.py" = [
+        "FBT001", # No `bool` params -- used to specify CLI arguments with Typer module
+        "FBT002", # No `bool` param defaults -- CLI argument values in Typer module
+        "UP007",  # No `Option[..]` Type-syntax -- used by Typer module
+]
+# ignore these lints in a file that will be testing CLI arg defining functions
+"test_commands.py" = [
+        "FBT003", # No `bool` in func calls -- functions being tested represent CLI args
+]
+# ignore these lints in all test files
+"test_*.py" = [
+        "S101",    # Use of `assert` -- intended in tests files
+        "PLR2004", # Magic Value used in comparison -- impractical rule in test files
+]
+# ignore these lints in a file conversion to a Jupyter Notebook ("jupytext file")
+"*.ju.py" = [
+        "T201", # "print found"
+        "E402", # "module level import not at top of file"
+        # "ERA001", # "commented out code" - this can be confused by jupytext syntax
+]
