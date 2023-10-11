@@ -83,6 +83,41 @@ iris_data
 type(iris_data)
 
 # %% [markdown]
+# # Quick Views
+# (Head, Tail, Sample, Describe)
+
+# %% [markdown]
+# ### Some Data to Look at
+
+# %%
+from datetime import datetime
+
+for_desc_df = pl.DataFrame(
+    {
+        "integer": [1, 2, 3, 4, 5],
+        "date": [
+            datetime(2022, 1, 1),
+            datetime(2022, 1, 2),
+            datetime(2022, 1, 3),
+            datetime(2022, 1, 4),
+            datetime(2022, 1, 5),
+        ],
+        "float": [4.0, 5.0, 6.0, 7.0, 8.0],
+        "words": ["alpha", "beta", "gaga", "delta", "eps"]
+    }
+)
+
+print(for_desc_df)
+
+# %%
+print(for_desc_df.head(2))
+print(for_desc_df.tail(2))
+print(for_desc_df.sample(2))
+
+# %%
+print(for_desc_df.describe())
+
+# %% [markdown]
 # # GroupBy
 
 # %%
