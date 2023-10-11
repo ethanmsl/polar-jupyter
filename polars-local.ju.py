@@ -19,6 +19,7 @@
 
 # %%
 import polars as pl
+import numpy as np
 
 
 # %% [markdown]
@@ -35,6 +36,39 @@ iris_data = pl.read_csv("data/iris.csv")
 
 # %%
 print(iris_data)
+
+# %% [markdown]
+# # Combining DataFrames
+
+# %% [markdown]
+# ### Joining
+# (Left, Right, Inner, Outer)
+
+# %%
+for_comb_df1 = pl.DataFrame(
+    {
+        "a": np.arange(0, 8),
+        "b": np.random.rand(8),
+        "d": [1, 2.0, np.NaN, np.NaN, 0, -5, -42, None],
+    }
+)
+
+for_comb_df2 = pl.DataFrame(
+    {
+        "x": np.arange(0, 8),
+        "y": ["A", "A", "A", "B", "B", "C", "X", "X"],
+    }
+)
+joined = for_comb_df1.join(for_comb_df2, left_on="a", right_on="x")
+print(joined)
+
+# %% [markdown]
+# ### Concatination 
+# (Horizontal or vertical)
+
+# %%
+stacked = for_comb_df1.hstack(for_comb_df2)
+print(stacked)
 
 # %% [markdown]
 # ## Render (engine style; e.g. Jupyter or VSCode)
