@@ -53,7 +53,17 @@ type(iris_data)
 
 # %%
 scores = {
-    "Zone": ["North", "North", "North", "South", "South", "East", "East", "West", "West"],
+    "Zone": [
+        "North",
+        "North",
+        "North",
+        "South",
+        "South",
+        "East",
+        "East",
+        "West",
+        "West",
+    ],
     "School": [
         "Rushmore",
         "Rushmore",
@@ -117,20 +127,19 @@ q.collect()
 
 # %%
 q = (
-    school_df
-    .lazy()
-    .group_by(by='Zone')
-    .agg(        
+    school_df.lazy()
+    .group_by(by="Zone")
+    .agg(
         [
-            pl.col('Science').count().alias('Number of Schools'),
-            pl.col('Science').max().alias('Science(Max)'),
-            pl.col('Science').min().alias('Science(Min)'),
-            pl.col('Science').mean().alias('Science(Mean)'),
-            pl.col('Math').max().alias('Math(Max)'),
-            pl.col('Math').min().alias('Math(Min)'),    
-            pl.col('Math').mean().alias('Math(Mean)'),    
+            pl.col("Science").count().alias("Number of Schools"),
+            pl.col("Science").max().alias("Science(Max)"),
+            pl.col("Science").min().alias("Science(Min)"),
+            pl.col("Science").mean().alias("Science(Mean)"),
+            pl.col("Math").max().alias("Math(Max)"),
+            pl.col("Math").min().alias("Math(Min)"),
+            pl.col("Math").mean().alias("Math(Mean)"),
         ]
-    )    
+    )
 )
 print(q.collect())
 
@@ -139,26 +148,25 @@ print(q.collect())
 
 # %%
 q = (
-    school_df
-    .lazy()
-    .group_by(by='Zone')
-    .agg(        
+    school_df.lazy()
+    .group_by(by="Zone")
+    .agg(
         [
-            pl.col('Science').count().alias('Number of Schools'),
-            pl.col('Science').max().alias('Science(Max)'),
-            pl.col('Science').min().alias('Science(Min)'),
-            pl.col('Science').mean().alias('Science(Mean)'),
-            pl.col('Math').max().alias('Math(Max)'),
-            pl.col('Math').min().alias('Math(Min)'),    
-            pl.col('Math').mean().alias('Math(Mean)'),    
+            pl.col("Science").count().alias("Number of Schools"),
+            pl.col("Science").max().alias("Science(Max)"),
+            pl.col("Science").min().alias("Science(Min)"),
+            pl.col("Science").mean().alias("Science(Mean)"),
+            pl.col("Math").max().alias("Math(Max)"),
+            pl.col("Math").min().alias("Math(Min)"),
+            pl.col("Math").mean().alias("Math(Mean)"),
         ]
-    )    
-    .sort(by='Zone')
+    )
+    .sort(by="Zone")
 )
 print(q.collect())
 
 # %% [markdown]
-# ### Here's one hack to create custom ordering : joining another dataframe and hiding an invisilbe ordering column
+# ### Here's one hack to create custom ordering : joining another dataframe and hiding an invisible ordering column
 
 # %%
 df_sortorder = pl.DataFrame(
@@ -174,7 +182,7 @@ q = (
     .group_by(by=["Zone", "Zone_order"])
     .agg([pl.max("Science").alias("Science(Max)")])
     .sort("Zone_order")
-    # .select(pl.exclude("Zone_order"))
+    .select(pl.exclude("Zone_order"))
 )
 q.collect()
 
@@ -188,23 +196,23 @@ insurance_df.collect()
 # %%
 (
     pl.scan_csv("data/insurance.csv")
-    .groub_by(by="sex")
+    .group_by(by="sex")
     .agg(
-            [pl.col("charges").sum()]
+        [pl.col("charges").sum()]
         )
 ).collect()
 
 # %%
 q = (
     pl.scan_csv("data/insurance.csv")
-    .group_by(by='region')
+    .group_by(by="region")
     .agg(
         [
-            (pl.col('sex') == 'male').sum().alias('male'),
-            (pl.col('sex') == 'female').sum().alias('female'),
-        ]    
+            (pl.col("sex") == "male").sum().alias("male"),
+            (pl.col("sex") == "female").sum().alias("female"),
+        ]
     )
-    .sort(by='region')
+    .sort(by="region")
 )
 q.collect()
 
@@ -246,15 +254,13 @@ q.collect()
 
 # %%
 q = (
-    pl.scan_csv('data/insurance.csv')
-    .group_by(by='region')
-    .agg(
-        [
-            (pl.col('smoker')=='yes').sum()
-        ]    
-    )
-    .sort(by='region')
+    pl.scan_csv("data/insurance.csv")
+    .group_by(by="region")
+    .agg([(pl.col("smoker") == "yes").sum()])
+    .sort(by="region")
 )
 q.collect()
+
+# %%
 
 # %%
