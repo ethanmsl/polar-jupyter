@@ -75,14 +75,28 @@ school_df = pl.DataFrame(scores)
 print(school_df)
 
 # %%
-q = school_df.lazy().group_by(by="Zone").agg("School", "Name", "Math", "Science")
+q = (
+    school_df.lazy()
+    .group_by(by="Zone")
+    .agg(
+        "School",
+        "Name",
+        "Math",
+        "Science",
+    )
+)
 q.collect()
 
 # %%
 q = (
     school_df.lazy()
     .group_by(by="Zone")
-    .agg("School", "Name", "Math", "Science")
+    .agg(
+        "School",
+        "Name",
+        "Math",
+        "Science",
+    )
     .filter(pl.col("Zone") == "East")
 )
 q.collect()
@@ -92,7 +106,7 @@ q = (
     school_df.lazy()
     .group_by(by="Zone")
     .agg(
-        pl.col('Science').std().alias('Science_std'),
+        pl.col("Science").std().alias("Science_std"),
     )
 )
 q.collect()
@@ -148,7 +162,10 @@ print(q.collect())
 
 # %%
 df_sortorder = pl.DataFrame(
-    {"Zone": ["North", "South", "East", "West"], "Zone_order": [0, 1, 2, 3]}
+    {
+        "Zone": ["North", "South", "East", "West"],
+        "Zone_order": [0, 1, 2, 3],
+    }
 ).lazy()
 
 q = (
@@ -157,7 +174,7 @@ q = (
     .group_by(by=["Zone", "Zone_order"])
     .agg([pl.max("Science").alias("Science(Max)")])
     .sort("Zone_order")
-   # .select(pl.exclude("Zone_order"))
+    # .select(pl.exclude("Zone_order"))
 )
 q.collect()
 
@@ -170,7 +187,11 @@ insurance_df.collect()
 
 # %%
 (
-    pl.scan_csv("data/insurance.csv").groub_by(by="sex").agg([pl.col("charges").sum()])
+    pl.scan_csv("data/insurance.csv")
+    .groub_by(by="sex")
+    .agg(
+            [pl.col("charges").sum()]
+        )
 ).collect()
 
 # %%
