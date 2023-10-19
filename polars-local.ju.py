@@ -118,6 +118,49 @@ print(for_desc_df.sample(2))
 print(for_desc_df.describe())
 
 # %% [markdown]
+# # Contexts & Expressions
+
+# %%
+for_contexts_df = pl.DataFrame(
+    {
+        "nrs": [1, 2, 3, None, 5],
+        "names": ["foo", "ham", "spam", "egg", None],
+        "random": np.random.rand(5),
+        "groups": ["A", "A", "B", "C", "B"],
+    }
+)
+print(for_contexts_df)
+
+# %% [markdown]
+# ### Select & With_Columns
+# > In the select context the selection applies expressions over columns. The expressions in this context must produce Series that are all the same length or have a length of 1.
+# >
+# > A Series of a length of 1 will be broadcasted to match the height of the DataFrame. Note that a select may produce new columns that are aggregations, combinations of expressions, or literals.
+#
+# `Select`: only returns columns specified  
+# `With_Columns`: adds specified columns to original
+
+# %%
+out_select = for_contexts_df.select(
+    pl.sum("nrs"), # note: that it takes original name if not given alias
+    pl.col("nrs").sum().alias("same as above"), # note that the above is a shorthand for this, modulo alias
+    pl.col("names").sort(),
+    pl.col("names").head(1).alias("first name"),
+    (pl.mean("nrs") * 10).alias("10xnrs"),
+)
+print(out_select)
+
+
+out_wcol = for_contexts_df.with_columns(
+    pl.sum("nrs"), # NOTE!: this ovewrites the original!
+    pl.col("nrs").sum().alias("same as above"), # note that the above is a shorthand for this, modulo alias
+    pl.col("names").sort(),
+    pl.col("names").head(1).alias("first name"),
+    (pl.mean("nrs") * 10).alias("10xnrs"),
+)
+print(out_wcol)
+
+# %% [markdown]
 # # GroupBy
 
 # %%
