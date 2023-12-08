@@ -45,22 +45,27 @@ print(iris_data)
 # (Left, Right, Inner, Outer)
 
 # %%
+rng = np.random.default_rng(8)  # generator object
+
 for_comb_df1 = pl.DataFrame(
     {
         "a": np.arange(0, 8),
-        "b": np.random.default_rng(8),
+        "b": rng.random(8),
         "d": [1, 2.0, np.NaN, np.NaN, 0, -5, -42, None],
-    },
+    }
 )
 
 for_comb_df2 = pl.DataFrame(
     {
         "x": np.arange(0, 8),
         "y": ["A", "A", "A", "B", "B", "C", "X", "X"],
-    },
+    }
 )
+
+# Join the dataframes
 joined = for_comb_df1.join(for_comb_df2, left_on="a", right_on="x")
 print(joined)
+
 
 # %% [markdown]
 # ### Concatination
@@ -125,7 +130,7 @@ for_contexts_df = pl.DataFrame(
     {
         "nrs": [1, 2, 3, None, 5],
         "names": ["foo", "ham", "spam", "egg", None],
-        "random": np.random.default_rng(5),
+        "random": np.random.default_rng(5).random(5),
         "groups": ["A", "A", "B", "C", "B"],
     },
 )
@@ -316,12 +321,12 @@ q.collect()
 # # Insurance CSV
 
 # %%
-insurance_df = pl.scan_csv("data/insurance.csv")
+insurance_df = pl.scan_csv("../data/insurance.csv")
 insurance_df.collect()
 
 # %%
 (
-    pl.scan_csv("data/insurance.csv")
+    pl.scan_csv("../data/insurance.csv")
     .group_by(by="sex")
     .agg(
         [pl.col("charges").sum()],
@@ -330,7 +335,7 @@ insurance_df.collect()
 
 # %%
 q = (
-    pl.scan_csv("data/insurance.csv")
+    pl.scan_csv("../data/insurance.csv")
     .group_by(by="region")
     .agg(
         [
@@ -344,7 +349,7 @@ q.collect()
 
 # %%
 q = (
-    pl.scan_csv("data/insurance.csv")
+    pl.scan_csv("../data/insurance.csv")
     .group_by(by="region")
     .agg(
         [
@@ -362,7 +367,7 @@ q.collect()
 
 # %%
 q = (
-    pl.scan_csv("data/insurance.csv")
+    pl.scan_csv("../data/insurance.csv")
     .group_by(by="region")
     .agg(
         [
@@ -381,7 +386,7 @@ q.collect()
 
 # %%
 q = (
-    pl.scan_csv("data/insurance.csv")
+    pl.scan_csv("../data/insurance.csv")
     .group_by(by="region")
     .agg([(pl.col("smoker") == "yes").sum()])
     .sort(by="region")
