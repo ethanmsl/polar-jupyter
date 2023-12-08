@@ -7,9 +7,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.0
 #   kernelspec:
-#     display_name: .venv
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -26,7 +26,7 @@ import polars as pl
 # # Read Data (eager/at-mention)
 
 # %%
-iris_data = pl.read_csv("data/iris.csv")
+iris_data = pl.read_csv("../data/iris.csv")
 
 # %% [markdown]
 # # Print vs Engine-Render
