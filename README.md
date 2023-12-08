@@ -1,18 +1,37 @@
 # Polars + Jupyter + lint & type parasable system with JupytText
 
-dev-notes:
-Most of templated systems I have are for running python scripts and terminal apps.
-I have a working collection of accessory configs and code for Notebooks, but yet to be formalized.
-As such:
+# QuickStart
 
-- checks may needed to ensure that file-type based lint exceptions in `pyproject.toml` are up to date
-- `.ipynb` w/ vscode vs `.ju.py` w/ jupynium or raw nvim is a workflow in progress
-  - leaning toward vscode for most work and then manually syncing jupytext files
-    - will add a commit hook or linter hook later
-    - manual synching (using `percent` format for jupytext):
+- install just & poetry & download this repo
+  - if on mac: `brew install just pipx; pipx install poetry`
+- open a notebook viewer
+  - Web Browser: run `just jupyter`, pick a `.ipynb` file
+  - VSCode: open the `notebooks/` directory, pick a `.ipynb` file, click "**Select Kernel**", pick `.venv (Python...)`
+- Have fun! -- `shift+enter` runs a cell.
 
-```zsh
-FILEPREFIX=<filename_overlap>
-jupytext --set-formats .ipynb,.ju.py:percent $FILEPREFIX.ipynb
-jupytext --sync $FILEPREFIX.ipynb
-```
+# Justfile
+
+This project uses a justfile (command runner specification) for convenient CLI operation.
+run `just` to see the available commands.
+
+- List of [install options for just](https://github.com/casey/just#packages). (e.g. `brew install just` and `cargo install just`)
+
+# [Poetry](https://python-poetry.org/)
+
+This project uses poetry for virtual environment & dependency management.
+The justfile's commands will automatically use the poetry venv when running.
+
+- If working from the CLI: `just venv` or `poetry shell` will enter a venv shell state bringing all dependencies live. (e.g. jupyter, pyright, etc.)
+- If working from VSCode: simply selecting the venv associatted kernel will bring the dependencies live.
+- install via [pipx](https://pipx.pypa.io/stable/) `pipx install poetry` (pipx is used to install python _applications_. It keeps applications' dependency requirements from shortcircuiting due to one another or other changes to the python global install pool. <-- pipx is to the user what poetry is to the developer)
+  - Alternatively you can use a [dedicated poetry installer](https://python-poetry.org/docs/#installing-with-the-official-installer)
+
+# JupyText
+
+- Jupyter files (`*.ipynb`) do not offer much visibility with diff and commit tools like git. (Though [custom solutions are being created](https://github.blog/changelog/2023-03-01-feature-preview-rich-jupyter-notebook-diffs/)) Jupytext basically converts the code and cell format to code and markdown. And enables syncing the jupyter `.ipynb` files with jupytext `.ju.py` files.
+  - As a plus, jupytext files are also just runnable scripts. So if you want to convert your notebook to a script they're an excellent place to start.
+- You can synch via jupyter (with jupytext extensions already added) or you can use the just command runner. `just jsync-all` will synch all the files in the `notebooks/` directory.
+
+# TODO:
+
+- Edit Lint Exceptions to be Notebook friendly
