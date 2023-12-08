@@ -20,16 +20,10 @@ poet-shell: _notify_if_not_root
         @echo "Entering Shell running Poetry Virtual Environment\n"
         poetry shell
 
-# Run python file in Poetry venv.
-py +FILE: _notify_if_not_root
-        @echo "Running {{FILE}} via Python...\n"
-        poetry run python3 {{FILE}}
-
-# Run python module in Poetry venv.
-pym +MODULE: _notify_if_not_root
-        @echo "Running module {{MODULE}} via Python...\n"
-        poetry run python3 -m {{MODULE}}
-
+# Run python file in Poetry venv. (add -m for a module)
+py +INP: _notify_if_not_root
+        @echo "Running {{INP}} via Python...\n"
+        poetry run python3 {{INP}}
 
 
 # Sync all files in `notebooks/` with Jupytext.
