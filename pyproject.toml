@@ -100,7 +100,9 @@ ignore = [
 ]
 # ignore these lints in a file conversion to a Jupyter Notebook ("jupytext file")
 "*.ju.py" = [
-        "T201", # "print found"
-        "E402", # "module level import not at top of file"
-        # "ERA001", # "commented out code" - this can be confused by jupytext syntax
+        "D100",   # "Missing Docstring in Public Module" -- not use of ju.py
+        "E402",   # "module level import not at top of file"
+        "ERA001", # "commented out code" - this can be confused by jupytext syntax
+        "I001",   # "Import Block Unformated" -- imports are placed differently in jupyter files
+        "T201",   # "print found"
 ]

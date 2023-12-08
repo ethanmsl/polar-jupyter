@@ -18,8 +18,8 @@
 #  # Quick Polars Local Test.
 
 # %%
-import polars as pl
 import numpy as np
+import polars as pl
 
 
 # %% [markdown]
@@ -48,22 +48,22 @@ print(iris_data)
 for_comb_df1 = pl.DataFrame(
     {
         "a": np.arange(0, 8),
-        "b": np.random.rand(8),
+        "b": np.random.default_rng(8),
         "d": [1, 2.0, np.NaN, np.NaN, 0, -5, -42, None],
-    }
+    },
 )
 
 for_comb_df2 = pl.DataFrame(
     {
         "x": np.arange(0, 8),
         "y": ["A", "A", "A", "B", "B", "C", "X", "X"],
-    }
+    },
 )
 joined = for_comb_df1.join(for_comb_df2, left_on="a", right_on="x")
 print(joined)
 
 # %% [markdown]
-# ### Concatination 
+# ### Concatination
 # (Horizontal or vertical)
 
 # %%
@@ -103,8 +103,8 @@ for_desc_df = pl.DataFrame(
             datetime(2022, 1, 5),
         ],
         "float": [4.0, 5.0, 6.0, 7.0, 8.0],
-        "words": ["alpha", "beta", "gaga", "delta", "eps"]
-    }
+        "words": ["alpha", "beta", "gaga", "delta", "eps"],
+    },
 )
 
 print(for_desc_df)
@@ -116,6 +116,61 @@ print(for_desc_df.sample(2))
 
 # %%
 print(for_desc_df.describe())
+
+# %% [markdown]
+# # Contexts & Expressions
+
+# %%
+for_contexts_df = pl.DataFrame(
+    {
+        "nrs": [1, 2, 3, None, 5],
+        "names": ["foo", "ham", "spam", "egg", None],
+        "random": np.random.default_rng(5),
+        "groups": ["A", "A", "B", "C", "B"],
+    },
+)
+print(for_contexts_df)
+
+# %% [markdown]
+# ### Select & With_Columns
+# > In the select context the selection applies expressions over columns.
+# > The expressions in this context must produce Seriesthat
+# > that are all the same length or have a length of 1.
+# >
+# > A Series of a length of 1 will be broadcasted to match the height of the DataFrame.
+# > Note that a select may produce new columns that are
+# > aggregations, combinations of expressions, or literals.
+#
+# `Select`: only returns columns specified
+# `With_Columns`: adds specified columns to original
+
+# %%
+out_select = for_contexts_df.select(
+    pl.sum("nrs"),  # note: that it takes original name if not given alias
+    pl.col("nrs")
+    .sum()
+    .alias(
+        "same as above",
+    ),  # note that the above is a shorthand for this, modulo alias
+    pl.col("names").sort(),
+    pl.col("names").head(1).alias("first name"),
+    (pl.mean("nrs") * 10).alias("10xnrs"),
+)
+print(out_select)
+
+
+out_wcol = for_contexts_df.with_columns(
+    pl.sum("nrs"),  # NOTE!: this ovewrites the original!
+    pl.col("nrs")
+    .sum()
+    .alias(
+        "same as above",
+    ),  # note that the above is a shorthand for this, modulo alias
+    pl.col("names").sort(),
+    pl.col("names").head(1).alias("first name"),
+    (pl.mean("nrs") * 10).alias("10xnrs"),
+)
+print(out_wcol)
 
 # %% [markdown]
 # # GroupBy
@@ -192,7 +247,8 @@ q.collect()
 
 
 # %% [markdown]
-# ### Note: order returned by groupby is effectively random (presumably due to split-threading)
+# ### Note: order returned by groupby is effectively random
+# ###       (presumably due to split-threading)
 
 # %%
 q = (
@@ -207,7 +263,7 @@ q = (
             pl.col("Math").max().alias("Math(Max)"),
             pl.col("Math").min().alias("Math(Min)"),
             pl.col("Math").mean().alias("Math(Mean)"),
-        ]
+        ],
     )
 )
 print(q.collect())
@@ -228,21 +284,22 @@ q = (
             pl.col("Math").max().alias("Math(Max)"),
             pl.col("Math").min().alias("Math(Min)"),
             pl.col("Math").mean().alias("Math(Mean)"),
-        ]
+        ],
     )
     .sort(by="Zone")
 )
 print(q.collect())
 
 # %% [markdown]
-# ### Here's one hack to create custom ordering : joining another dataframe and hiding an invisible ordering column
+# ### Here's one hack to create custom ordering :
+# ### joining another dataframe and hiding an invisible ordering column
 
 # %%
 df_sortorder = pl.DataFrame(
     {
         "Zone": ["North", "South", "East", "West"],
         "Zone_order": [0, 1, 2, 3],
-    }
+    },
 ).lazy()
 
 q = (
@@ -267,8 +324,8 @@ insurance_df.collect()
     pl.scan_csv("data/insurance.csv")
     .group_by(by="sex")
     .agg(
-        [pl.col("charges").sum()]
-        )
+        [pl.col("charges").sum()],
+    )
 ).collect()
 
 # %%
@@ -279,7 +336,7 @@ q = (
         [
             (pl.col("sex") == "male").sum().alias("male"),
             (pl.col("sex") == "female").sum().alias("female"),
-        ]
+        ],
     )
     .sort(by="region")
 )
@@ -297,7 +354,7 @@ q = (
             (pl.col("charges").filter(pl.col("sex") == "female"))
             .mean()
             .alias("female_mean_charges"),
-        ]
+        ],
     )
     .sort(by="region")
 )
@@ -312,14 +369,15 @@ q = (
             pl.col("smoker").count().alias("smoker_Q_count"),
             (pl.col("smoker") == "yes").sum().alias("yes_smoker_count"),
             (pl.col("smoker") == "no").sum().alias("no_smoker_count"),
-        ]
+        ],
     )
 )
 
 q.collect()
 
 # %% [markdown]
-# ### NOTE: `.count()` counts all entries, `.sum()` counts all values that are true (assuming a boolean on column)
+# ### NOTE: `.count()` counts all entries,
+# ###       `.sum()` counts all values that are true (assuming a boolean on column)
 
 # %%
 q = (
