@@ -5,21 +5,36 @@ invoc_is_root := if invocd_from == local_root { "true" } else { "false" }
 
 alias chore := push-chore
 alias venv := poet-shell
+alias pjf := push-justfile
 
 # Default, lists commands.
 _default:
         @just --list --unsorted
 
 
+# Open Jupyter Lab in a web browser.
+open-jupyter: _notify_if_not_root
+        @echo "Opening Jupyter Lab in a Web Browser\n"
+        poetry run jupyter lab
+
 # Enter Poetry Virtual Environment.
 poet-shell: _notify_if_not_root
         @echo "Entering Shell running Poetry Virtual Environment\n"
         poetry shell
 
-# Open Jupyter Lab in a web browser.
-open-jupyter: _notify_if_not_root
-        @echo "Opening Jupyter Lab in a Web Browser\n"
-        jupyter lab
+# alias ppy='poetry run python3'
+# alias ppym='poetry run python3 -m'
+# alias ppr='poetry run'
+
+
+jupy-sync-all: _notify_if_not_root
+        #!/bin/bash
+        echo "Creating/Syncing Jupytext versions of all '.ipynb' notebooks..."
+        for notebook in notebooks/*.ipynb; do
+                jupytext --set-formats .ipynb,.ju.py:percent "$notebook"
+                jupytext --sync "$notebook"
+        done
+
 
 # TODO: add into poetshell commands
 # TODO: join path
@@ -45,7 +60,7 @@ push-chore: _notify_if_not_root
         git push
 
 # JustFile: Add, Commit, and Push all changes.
-push-just: _notify_if_not_root
+push-justfile: _notify_if_not_root
         @echo "JustFile Updates: Committing and Pushing all changes to justfile under root: {{local_root}}...\n"
         git fetch
         git restore --staged .
