@@ -5,6 +5,8 @@ invoc_is_root := if invocd_from == local_root { "true" } else { "false" }
 
 alias chore := push-chore
 alias venv := poet-shell
+alias python3 := pyrun
+alias python3-m := pyrun-module
 alias pjf := push-justfile
 
 # Default, lists commands.
@@ -22,17 +24,25 @@ poet-shell: _notify_if_not_root
         @echo "Entering Shell running Poetry Virtual Environment\n"
         poetry shell
 
-# alias ppy='poetry run python3'
-# alias ppym='poetry run python3 -m'
-# alias ppr='poetry run'
+# Run python file in Poetry venv.
+pyrun +FILE: _notify_if_not_root
+        @echo "Running {{FILE}} via Python...\n"
+        poetry run python3 {{FILE}}
+
+# Run python module in Poetry venv.
+pyrun-module +MODULE: _notify_if_not_root
+        @echo "Running module {{MODULE}} via Python...\n"
+        poetry run python3 -m {{MODULE}}
+
 
 
 jupy-sync-all: _notify_if_not_root
         #!/bin/bash
-        echo "Creating/Syncing Jupytext versions of all '.ipynb' notebooks..."
+        echo "Syncing Jupytext versions of all '.ipynb' notebooks...\n"
+        set -xeuo pipefail # euo pipefail: fail flags; x: print commands
         for notebook in notebooks/*.ipynb; do
-                jupytext --set-formats .ipynb,.ju.py:percent "$notebook"
-                jupytext --sync "$notebook"
+                poetry run jupytext --set-formats .ipynb,.ju.py:percent "$notebook" # jupytext  % format
+                poetry run jupytext --sync "$notebook" # synch .ju.py & .ipynb files
         done
 
 
