@@ -13,6 +13,11 @@ jupytext = "^1.15.2"
 matplotlib = "^3.8.0"
 ipywidgets = "^8.1.1"
 sympy = "^1.12"
+python-dotenv = "^1.0.0"
+httpx = "^0.25.2"
+structlog = "^23.2.0"
+pydantic = "^2.5.2"
+pendulum = "^2.1.2"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -27,6 +32,7 @@ pytest-cov = "^4.1.0"
 ruff = "^0.0.291"
 ruff-lsp = "^0.0.39"
 ipykernel = "^6.25.2"
+hypothesis = "^6.91.1"
 
 [build-system]
 requires = ["poetry-core"]
