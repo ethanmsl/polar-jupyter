@@ -3,11 +3,7 @@ local_root := justfile_directory()
 invocd_from := invocation_directory()
 invoc_is_root := if invocd_from == local_root { "true" } else { "false" }
 
-alias chore := push-chore
 alias venv := poet-shell
-alias python3 := pyrun
-alias python3-m := pyrun-module
-alias pjf := push-justfile
 
 # Default, lists commands.
 _default:
@@ -15,7 +11,7 @@ _default:
 
 
 # Open Jupyter Lab in a web browser.
-open-jupyter: _notify_if_not_root
+jupyter: _notify_if_not_root
         @echo "Opening Jupyter Lab in a Web Browser\n"
         poetry run jupyter lab
 
@@ -25,18 +21,19 @@ poet-shell: _notify_if_not_root
         poetry shell
 
 # Run python file in Poetry venv.
-pyrun +FILE: _notify_if_not_root
+py +FILE: _notify_if_not_root
         @echo "Running {{FILE}} via Python...\n"
         poetry run python3 {{FILE}}
 
 # Run python module in Poetry venv.
-pyrun-module +MODULE: _notify_if_not_root
+pym +MODULE: _notify_if_not_root
         @echo "Running module {{MODULE}} via Python...\n"
         poetry run python3 -m {{MODULE}}
 
 
 
-jupy-sync-all: _notify_if_not_root
+# Sync all files in `notebooks/` with Jupytext.
+jsync-all: _notify_if_not_root
         #!/bin/bash
         echo "Syncing Jupytext versions of all '.ipynb' notebooks...\n"
         set -xeuo pipefail # euo pipefail: fail flags; x: print commands
@@ -46,19 +43,16 @@ jupy-sync-all: _notify_if_not_root
         done
 
 
-# TODO: add into poetshell commands
-# TODO: join path
-# TODO: clean extension
-# Sync Jupyter `.ipynb` file with a jupytext file. (For clean diffs and script extensions.)
-jupy-sync +NOTEBOOK: _notify_if_not_root
+# Sync specified files in `notebooks/` with Jupytext.
+jsync +NOTEBOOK: _notify_if_not_root
         @echo "Creating/Syncing Jupytext versions of the following '.ipynb' notebooks {{NOTEBOOK}}...\n"
-        jupytext --set-formats .ipynb,.ju.py:percent notebooks/{{NOTEBOOK}}.ipynb
-        jupytext --sync notebooks/{{NOTEBOOK}}.ipynb
+        poetry run jupytext --set-formats .ipynb,.ju.py:percent notebooks/{{NOTEBOOK}}.ipynb # jupytext  % format
+        poetry run jupytext --sync notebooks/{{NOTEBOOK}}.ipynb # synch .ju.py & .ipynb files
 
-# Runs pre-commit hook. (Linting, testing, doc generation, etc.) Requires poetry shell.
+# Runs pre-commit hook.
 hook: _notify_if_not_root
         @echo "Running git hook from {{local_root}}...\n"
-        git hook run pre-commit
+        poetry run git hook run pre-commit
 
 # Auto-Gen Files: Add, Commit, and Push all changes.
 push-chore: _notify_if_not_root
