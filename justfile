@@ -90,8 +90,13 @@ show-tree:
 
 # Show flattened dependency tree for project. (Useful for piping.)
 show-list:
-        @echo "Dependency tree for {{local_root}}\n"
+        @echo "Dependency list (recursed) for {{local_root}}\n"
         poetry show --verbose --verbose --verbose
+
+# Filtered dependency list results.
+show-filter REGEX:
+        @echo "Filtered, recursed dependency list for {{local_root}}\n"
+        poetry show --verbose --verbose --verbose | grep '{{REGEX}}'
 
 notify_text := "\n-----\nNOTE:\n    You are running this command in:\n"+invocd_from+"\n    But it will be run in:\n" +local_root+".\n-----\n"
 _notify_if_not_root:
