@@ -34,6 +34,19 @@ ruff-lsp = "^0.0.39"
 ipykernel = "^6.25.2"
 hypothesis = "^6.91.1"
 
+
+[tool.poetry.group.user.dependencies]
+polars = "^0.19.19"
+jupyterlab = "^4.0.9"
+notebook = "^7.0.6"
+jupytext = "^1.16.0"
+matplotlib = "^3.8.2"
+seaborn = "^0.13.0"
+numpy = "^1.26.2"
+scipy = "^1.11.4"
+sympy = "^1.12"
+ipywidgets = "^8.1.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
