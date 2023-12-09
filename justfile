@@ -79,7 +79,7 @@ push-justfile: _notify_if_not_root
         git fetch
         git restore --staged .
         git add justfile
-        git commit --message "build(auto): updates to justfile (command runner)\n\n[note: this is atemplated commit message]" --no-verify
+        git commit --message "build(auto): updates to justfile (command runner)\n\n[note: this is a templated commit message]" --no-verify
         git push
 
 
