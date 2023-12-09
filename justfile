@@ -43,10 +43,26 @@ jsync +NOTEBOOK: _notify_if_not_root
         poetry run jupytext --set-formats .ipynb,.ju.py:percent notebooks/{{NOTEBOOK}}.ipynb # jupytext  % format
         poetry run jupytext --sync notebooks/{{NOTEBOOK}}.ipynb # synch .ju.py & .ipynb files
 
-# Runs pre-commit hook.
-hook: _notify_if_not_root
-        @echo "Running git hook from {{local_root}}...\n"
-        poetry run git hook run pre-commit
+# Update Poetry Dependencies.
+update:
+        @echo "Updating Poetry Virtual Environment...\n"
+        poetry update
+        poetry check
+
+# Add User dependencies via Poetry.
+deps-add +USER_DEPS:
+        @echo "Adding the following user dependencies via Poetry: {{USER_DEPS}} ...\n"
+        poetry add {{USER_DEPS}}
+
+# Add Developer dependencies via Poetry. (e.g. linters, testers)
+deps-add-dev +DEV_DEPS:
+        @echo "Adding the following developer dependencies via Poetry: {{DEV_DEPS}} ...\n"
+        poetry add --group=dev {{DEV_DEPS}}
+
+# Remove dependencies via Poetry.
+deps-remove +DEPS:
+        @echo "Removing the following developer dependencies via Poetry: {{DEPS}} ...\n"
+        poetry remove {{DEPS}}
 
 # Auto-Gen Files: Add, Commit, and Push all changes.
 push-chore: _notify_if_not_root
@@ -67,11 +83,61 @@ push-justfile: _notify_if_not_root
         git push
 
 
+
 notify_text := "\n-----\nNOTE:\n    You are running this command in:\n"+invocd_from+"\n    But it will be run in:\n" +local_root+".\n-----\n"
 _notify_if_not_root:
         @echo '{{ if invoc_is_root == 'true' { "" } else { notify_text } }}'
 
 
 ######################### Future Work / Explorations #########################
+#
+# Note: These are not all setup usefully yet and some may not be appropriate for a notebook repo.
 
+
+# Runs pre-commit hook.
+_hook: _notify_if_not_root
+        @echo "Running git hook from {{local_root}}...\n"
+        poetry run git hook run pre-commit
+
+# Setup Repo, Installing Dependencies and Readying venv.
+setup:
+        poetry check
+        poetry install --no-root
+
+# Run Tests.
+_test:
+        poetry run pytest notebooks/
+
+# Lint code.
+_lint:
+        poetry run ruff notebooks/
+
+# Type check code.
+_type:
+        poetry run pyright notebooks/
+
+# Generate Documentation.
+_doc:
+        poetry run pdoc notebooks/
+
+# Scan for security concerns.
+sec-test:
+        poetry run bandit -r notebooks/
+
+# TODO: add [confirm] attribute when released
+# Warning: Heavy, Opinionated command. Installs Poetry and configs venvs to be local.  Downloads pipx for install, via Homebrew.
+[macos]
+get-poetry:
+        @echo "\n-----\nInstalling and Configuring Poetry. Utilizing Homebrew and PipX\n-----\n"
+        brew install pipx
+        @echo
+        pipx ensurepath
+        @echo
+        pipx install poetry
+        @echo
+        poetry config virtualenvs.in-project true
+        @echo
+        poetry config --list
+        @echo
+        poetry about
 
