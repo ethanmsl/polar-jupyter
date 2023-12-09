@@ -83,6 +83,15 @@ push-justfile: _notify_if_not_root
         git push
 
 
+# Show dependency tree for project.
+show-tree:
+        @echo "Dependency tree for {{local_root}}\n"
+        poetry show --tree --verbose --verbose --verbose
+
+# Show flattened dependency tree for project. (Useful for piping.)
+show-list:
+        @echo "Dependency tree for {{local_root}}\n"
+        poetry show --verbose --verbose --verbose
 
 notify_text := "\n-----\nNOTE:\n    You are running this command in:\n"+invocd_from+"\n    But it will be run in:\n" +local_root+".\n-----\n"
 _notify_if_not_root:
