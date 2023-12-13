@@ -64,6 +64,15 @@ deps-remove +DEPS:
         @echo "Removing the following developer dependencies via Poetry: {{DEPS}} ...\n"
         poetry remove {{DEPS}}
 
+# Push Jupyter file changes after jupytext syncing.
+push-jup: jsync-all 
+        @echo "Auto-Gen File Updates: Committing and Pushing all changes to requirments*.txt & dev_docs/*: {{local_root}}...\n"
+        git fetch
+        git restore --staged .
+        git add notebooks/*
+        git commit --message "chore(jupyter): Automated Jupyter updates push.\n\n[note: this is a templated commit]" --no-verify
+        git push
+
 # Auto-Gen Files: Add, Commit, and Push all changes.
 push-chore: _notify_if_not_root
         @echo "Auto-Gen File Updates: Committing and Pushing all changes to requirments*.txt & dev_docs/*: {{local_root}}...\n"
