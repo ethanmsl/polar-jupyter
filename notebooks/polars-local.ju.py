@@ -9,7 +9,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.16.0
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: .venv
 #     language: python
 #     name: python3
 # ---
@@ -22,20 +22,39 @@ import numpy as np
 import polars as pl
 
 
+# %%
+# println!("hi there, from a rust cell");
+
 # %% [markdown]
-# # Read Data (eager/at-mention)
+# # Read Data (classic or planned / "eager" or "lazy")
+
+# %% [markdown]
+# ### Classic Loading ("eager")
+# `read_...` gives a command to immediately read a file and produce data based on what was read
 
 # %%
+# "eager" read
 iris_data = pl.read_csv("../data/iris.csv")
+print(iris_data)
+
+# %% [markdown]
+# ### Planned Loading ("lazy")
+# `scan_...` indicates requirements (e.g. data operations should be performed on data from this file)
+# when classic data is eventually requested all the requirements (e.g. data from this file, selecting these rows, filtering on those values, etc.) will be processed and a concrete plan executed.  Waiting until all the requirements are specified means the actual plan can be more efficient -- e.g. not reading from columns or rows that won't even be used.
+
+# %%
+# "lazy" loading: 
+# (the plan is used when data itself is requested)
+iris_data = pl.scan_csv("../data/iris.csv")
+print(iris_data)
 
 # %% [markdown]
 # # Print vs Engine-Render
 
-# %% [markdown]
-# ### Print (terminal-style)
-
 # %%
-print(iris_data)
+iris_data = pl.read_csv("../data/iris.csv")
+print(iris_data)  # prints out terminal style rendering
+iris_data  # uses engine's chosen rendering
 
 # %% [markdown]
 # # Combining DataFrames
@@ -44,10 +63,13 @@ print(iris_data)
 # ### Joining
 # (Left, Right, Inner, Outer)
 
+# %% [markdown]
+# Joining two DataFrames on a specified column.
+
 # %%
 rng = np.random.default_rng(8)  # generator object
 
-for_comb_df1 = pl.DataFrame(
+df1 = pl.DataFrame(
     {
         "a": np.arange(0, 8),
         "b": rng.random(8),
@@ -55,7 +77,7 @@ for_comb_df1 = pl.DataFrame(
     }
 )
 
-for_comb_df2 = pl.DataFrame(
+df2 = pl.DataFrame(
     {
         "x": np.arange(0, 8),
         "y": ["A", "A", "A", "B", "B", "C", "X", "X"],
@@ -63,7 +85,7 @@ for_comb_df2 = pl.DataFrame(
 )
 
 # Join the dataframes
-joined = for_comb_df1.join(for_comb_df2, left_on="a", right_on="x")
+joined = df1.join(df2, left_on="a", right_on="x")
 print(joined)
 
 
@@ -72,20 +94,18 @@ print(joined)
 # (Horizontal or vertical)
 
 # %%
-stacked = for_comb_df1.hstack(for_comb_df2)
+stacked = df1.hstack(df2)
 print(stacked)
-
-# %% [markdown]
-# ## Render (engine style; e.g. Jupyter or VSCode)
-
-# %%
-iris_data
 
 # %% [markdown]
 # # Various
 
 # %%
-type(iris_data)
+iris_type = type(iris_data)
+df_type = type(df1)
+
+print(iris_type)
+print(df_type)
 
 # %% [markdown]
 # # Quick Views
@@ -94,39 +114,66 @@ type(iris_data)
 # %% [markdown]
 # ### Some Data to Look at
 
-# %%
-from datetime import datetime
+# %% [markdown]
+# Creating datetime objects with builtin library. (note that no location is provided by default.)
 
-for_desc_df = pl.DataFrame(
+# %%
+import datetime
+
+dfd = pl.DataFrame(
     {
         "integer": [1, 2, 3, 4, 5],
         "date": [
-            datetime(2022, 1, 1),
-            datetime(2022, 1, 2),
-            datetime(2022, 1, 3),
-            datetime(2022, 1, 4),
-            datetime(2022, 1, 5),
+            datetime.datetime(2022, 1, 1),
+            datetime.datetime(2022, 1, 2),
+            datetime.datetime(2022, 1, 3),
+            datetime.datetime(2022, 1, 4),
+            datetime.datetime(2022, 1, 5),
         ],
         "float": [4.0, 5.0, 6.0, 7.0, 8.0],
         "words": ["alpha", "beta", "gaga", "delta", "eps"],
     },
 )
 
-print(for_desc_df)
+print(dfd)
+
+# %% [markdown]
+# Creating a datetime with the arrow module.  Note that we must exclusively convert to a datetime object.  Also note that a 'default' timezone is provided.
 
 # %%
-print(for_desc_df.head(2))
-print(for_desc_df.tail(2))
-print(for_desc_df.sample(2))
+import arrow
+
+dfd = pl.DataFrame(
+    {
+        "integer": [1, 2, 3, 4, 5],
+        "date": [
+            arrow.get("2022-01-01").datetime,
+            arrow.get("2022-01-02").datetime,
+            arrow.get("2022-01-03").datetime,
+            arrow.get("2022-01-04").datetime,
+            arrow.get("2022-01-05").datetime,
+        ],
+        "float": [4.0, 5.0, 6.0, 7.0, 8.0],
+        "words": ["alpha", "beta", "gaga", "delta", "eps"],
+    },
+)
+
+print(dfd)
 
 # %%
-print(for_desc_df.describe())
+print(dfd.head(2))
+print(dfd.tail(2))
+print(dfd.sample(2))
+
+# %%
+print(dfd.glimpse())
+dfd.describe()
 
 # %% [markdown]
 # # Contexts & Expressions
 
 # %%
-for_contexts_df = pl.DataFrame(
+dfc = pl.DataFrame(
     {
         "nrs": [1, 2, 3, None, 5],
         "names": ["foo", "ham", "spam", "egg", None],
@@ -134,7 +181,7 @@ for_contexts_df = pl.DataFrame(
         "groups": ["A", "A", "B", "C", "B"],
     },
 )
-print(for_contexts_df)
+print(dfc)
 
 # %% [markdown]
 # ### Select & With_Columns
@@ -150,7 +197,7 @@ print(for_contexts_df)
 # `With_Columns`: adds specified columns to original
 
 # %%
-out_select = for_contexts_df.select(
+out_select = dfc.select(
     pl.sum("nrs"),  # note: that it takes original name if not given alias
     pl.col("nrs")
     .sum()
@@ -164,7 +211,7 @@ out_select = for_contexts_df.select(
 print(out_select)
 
 
-out_wcol = for_contexts_df.with_columns(
+out_wcol = dfc.with_columns(
     pl.sum("nrs"),  # NOTE!: this ovewrites the original!
     pl.col("nrs")
     .sum()
@@ -179,6 +226,9 @@ print(out_wcol)
 
 # %% [markdown]
 # # GroupBy
+
+# %% [markdown]
+# Generating a DataSet to use:
 
 # %%
 scores = {
@@ -213,6 +263,11 @@ scores = {
 school_df = pl.DataFrame(scores)
 print(school_df)
 
+# %% [markdown]
+# We choose to **group_by** (group *based on*) `zone` (N,S,E,W).
+# Then we choose to **agg**regate some columns (all of them in this case) based on that grouping.
+# So, for example, the `School` column becomes a list of all the values it previously had, aggregating based on the group_by we chose.
+
 # %%
 q = (
     school_df.lazy()
@@ -225,6 +280,12 @@ q = (
     )
 )
 q.collect()
+
+# %% [markdown]
+# Next we do the same, but also specify what we want to **filter** the data.  Specifically, we only want data where the `Zone` column has the value `East`.
+#
+# Note: we don't need to concern ourselves with the fact that we aggregated and then filtered.  This uses `.lazy()` methods; so we're merely noting requirements.
+# When we call `.collect()` we request that our requirements are met and classic data is generated.  Polars will optimize the query as it's able.
 
 # %%
 q = (
@@ -239,6 +300,11 @@ q = (
     .filter(pl.col("Zone") == "East")
 )
 q.collect()
+
+# %% [markdown]
+# Again we group by `Zone`, but *this* time we **agg**regate by a new (manufactured) column.
+# We create a new column named 'science standard deviation', that originates from the previous.
+# The new column knows the origin of its values and provides a standard deviation based on them, in accordance with the Zone values we groupeed by.
 
 # %%
 q = (
@@ -274,7 +340,7 @@ q = (
 print(q.collect())
 
 # %% [markdown]
-# ### .sort() can be used to deal with the variable ordering
+# ### `.sort()` can be used to deal with the variable ordering
 
 # %%
 q = (
@@ -312,8 +378,8 @@ q = (
     .join(df_sortorder, on="Zone", how="left")
     .group_by(by=["Zone", "Zone_order"])
     .agg([pl.max("Science").alias("Science(Max)")])
-    .sort("Zone_order")
-    .select(pl.exclude("Zone_order"))
+    .sort("Zone_order")  # we sort on zone_order here
+    .select(pl.exclude("Zone_order"))  # and then exclude it
 )
 q.collect()
 
@@ -333,14 +399,19 @@ insurance_df.collect()
     )
 ).collect()
 
+# %% [markdown]
+# The logical operation actually creates a boolean value for each entry.  That can act as a value itself.
+# It can also be used in a reverse-truthy manner ("numbry"?) allowing calculations or other operations on the values.
+
 # %%
 q = (
     pl.scan_csv("../data/insurance.csv")
     .group_by(by="region")
     .agg(
         [
-            (pl.col("sex") == "male").sum().alias("male"),
-            (pl.col("sex") == "female").sum().alias("female"),
+            (pl.col("sex") == "male").alias("is_male"),
+            (pl.col("sex") == "male").sum().alias("#of male"),
+            (pl.col("sex") == "female").sum().alias("#of female"),
         ],
     )
     .sort(by="region")
@@ -359,6 +430,7 @@ q = (
             (pl.col("charges").filter(pl.col("sex") == "female"))
             .mean()
             .alias("female_mean_charges"),
+            (pl.col("charges").filter(pl.col("sex") == "male")).alias("male_charge_list"),
         ],
     )
     .sort(by="region")
@@ -392,7 +464,3 @@ q = (
     .sort(by="region")
 )
 q.collect()
-
-# %%
-
-# %%
